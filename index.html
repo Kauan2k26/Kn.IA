@@ -3,156 +3,227 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IA Offline Inteligente</title>
+<title>Crosshair PRO</title>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: #0f172a;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+body{
+    margin:0;
+    background:transparent;
+    overflow:hidden;
+    font-family:Arial, sans-serif;
 }
 
-.chat {
-    width: 420px;
-    background: #1e293b;
-    padding: 15px;
-    border-radius: 12px;
+#crosshair{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    pointer-events:none;
 }
 
-#messages {
-    height: 350px;
-    overflow-y: auto;
-    margin-bottom: 10px;
+.panel{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    width:320px;
+    background:#111;
+    border-radius:15px;
+    padding:15px;
+    color:white;
+    box-shadow:0 0 20px #00ffcc50;
 }
 
-.input-area {
-    display: flex;
+.panel h2{
+    margin:0 0 10px 0;
+    text-align:center;
+    color:#00ffcc;
 }
 
-input {
-    flex: 1;
-    padding: 10px;
-    border-radius: 6px;
-    border: none;
+.row{
+    margin-bottom:8px;
+    font-size:14px;
 }
 
-button {
-    padding: 10px;
-    margin-left: 5px;
-    border: none;
-    border-radius: 6px;
-    background: #3b82f6;
-    color: white;
-    cursor: pointer;
+select,input{
+    width:100%;
+    margin-top:3px;
+}
+
+button{
+    width:100%;
+    padding:8px;
+    margin-top:5px;
+    border:none;
+    border-radius:8px;
+    background:#00ffcc;
+    font-weight:bold;
+}
+
+.hideBtn{
+    background:#ff4444;
 }
 </style>
 </head>
 <body>
 
-<div class="chat">
-    <h3>🤖 IA Offline</h3>
-    <div id="messages"></div>
+<canvas id="crosshair" width="300" height="300"></canvas>
 
-    <div class="input-area">
-        <input type="text" id="userInput" placeholder="Digite ou fale...">
-        <button onclick="sendMessage()">Enviar</button>
-        <button onclick="startVoice()">🎤</button>
-    </div>
+<div class="panel" id="panel">
+<h2>Crosshair PRO</h2>
+
+<div class="row">
+Tipo:
+<select id="type">
+<option value="cross">Cruz</option>
+<option value="dot">Ponto</option>
+<option value="circle">Círculo</option>
+<option value="x">X</option>
+<option value="t">Tático</option>
+</select>
+</div>
+
+<div class="row">
+Cor:
+<input type="color" id="color" value="#00ffcc">
+</div>
+
+<div class="row">
+Tamanho:
+<input type="range" id="size" min="10" max="150" value="60">
+</div>
+
+<div class="row">
+Espessura:
+<input type="range" id="thickness" min="1" max="15" value="5">
+</div>
+
+<div class="row">
+Espaçamento:
+<input type="range" id="gap" min="0" max="40" value="10">
+</div>
+
+<div class="row">
+Opacidade:
+<input type="range" id="opacity" min="0.1" max="1" step="0.1" value="1">
+</div>
+
+<button onclick="save()">Salvar Config</button>
+<button onclick="togglePanel()" class="hideBtn">Esconder Painel</button>
+
 </div>
 
 <script>
-let memory = [];
+const canvas = document.getElementById("crosshair");
+const ctx = canvas.getContext("2d");
+const center = 150;
 
-const knowledgeBase = {
-    "oi": ["Olá 😄", "Oi, tudo bem?", "E aí! Como posso ajudar?"],
-    "tudo bem": ["Estou funcionando perfeitamente!", "Tudo ótimo por aqui 😎"],
-    "seu nome": ["Eu sou sua IA Offline inteligente!"],
-    "idade": ["Eu não tenho idade, sou um programa 😄"],
-    "criador": ["Fui criada usando HTML, CSS e JavaScript."]
-};
+function draw(){
+ctx.clearRect(0,0,300,300);
 
-function addMessage(sender, text) {
-    const messages = document.getElementById("messages");
-    messages.innerHTML += `<p><strong>${sender}:</strong> ${text}</p>`;
-    messages.scrollTop = messages.scrollHeight;
+const type = typeInput.value;
+const size = +sizeInput.value;
+const thickness = +thicknessInput.value;
+const gap = +gapInput.value;
+const color = colorInput.value;
+const opacity = opacityInput.value;
+
+ctx.globalAlpha = opacity;
+ctx.strokeStyle = color;
+ctx.fillStyle = color;
+ctx.lineWidth = thickness;
+
+if(type==="cross"){
+drawCross(size,gap);
+}
+if(type==="dot"){
+ctx.beginPath();
+ctx.arc(center,center,thickness*1.5,0,Math.PI*2);
+ctx.fill();
+}
+if(type==="circle"){
+ctx.beginPath();
+ctx.arc(center,center,size/2,0,Math.PI*2);
+ctx.stroke();
+}
+if(type==="x"){
+ctx.beginPath();
+ctx.moveTo(center-size/2,center-size/2);
+ctx.lineTo(center+size/2,center+size/2);
+ctx.moveTo(center+size/2,center-size/2);
+ctx.lineTo(center-size/2,center+size/2);
+ctx.stroke();
+}
+if(type==="t"){
+ctx.beginPath();
+ctx.moveTo(center-gap,center-size/2);
+ctx.lineTo(center-gap,center-gap);
+ctx.moveTo(center+gap,center-size/2);
+ctx.lineTo(center+gap,center-gap);
+ctx.moveTo(center-size/2,center-gap);
+ctx.lineTo(center-gap,center-gap);
+ctx.moveTo(center+gap,center-gap);
+ctx.lineTo(center+size/2,center-gap);
+ctx.stroke();
+}
 }
 
-function sendMessage() {
-    const input = document.getElementById("userInput");
-    const message = input.value.trim();
-    if (!message) return;
-
-    addMessage("Você", message);
-    memory.push(message);
-
-    const response = generateResponse(message);
-    addMessage("IA", response);
-    speak(response);
-
-    input.value = "";
+function drawCross(size,gap){
+ctx.beginPath();
+ctx.moveTo(center-size/2,center);
+ctx.lineTo(center-gap,center);
+ctx.moveTo(center+gap,center);
+ctx.lineTo(center+size/2,center);
+ctx.moveTo(center,center-size/2);
+ctx.lineTo(center,center-gap);
+ctx.moveTo(center,center+gap);
+ctx.lineTo(center,center+size/2);
+ctx.stroke();
 }
 
-function generateResponse(input) {
-    input = input.toLowerCase();
-
-    // Procurar na base de conhecimento
-    for (let key in knowledgeBase) {
-        if (input.includes(key)) {
-            return randomResponse(knowledgeBase[key]);
-        }
-    }
-
-    // Respostas inteligentes genéricas
-    if (input.includes("?")) {
-        return "Boa pergunta! Pode me explicar melhor o que você quer saber?";
-    }
-
-    if (input.length > 20) {
-        return "Interessante... me conta mais sobre isso.";
-    }
-
-    // Resposta baseada em memória
-    if (memory.length > 3) {
-        return "Você tem falado bastante sobre isso. Quer se aprofundar mais?";
-    }
-
-    return randomResponse([
-        "Entendi...",
-        "Interessante 🤔",
-        "Pode me explicar melhor?",
-        "Continue...",
-        "Estou aprendendo com você 😄"
-    ]);
+function save(){
+localStorage.setItem("crosshairConfig",JSON.stringify({
+type:typeInput.value,
+size:sizeInput.value,
+thickness:thicknessInput.value,
+gap:gapInput.value,
+color:colorInput.value,
+opacity:opacityInput.value
+}));
+alert("Configuração salva!");
 }
 
-function randomResponse(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
+function load(){
+let config = JSON.parse(localStorage.getItem("crosshairConfig"));
+if(config){
+typeInput.value=config.type;
+sizeInput.value=config.size;
+thicknessInput.value=config.thickness;
+gapInput.value=config.gap;
+colorInput.value=config.color;
+opacityInput.value=config.opacity;
+}
 }
 
-// 🎤 Reconhecimento de voz
-function startVoice() {
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = "pt-BR";
-    recognition.start();
-
-    recognition.onresult = function(event) {
-        const text = event.results[0][0].transcript;
-        document.getElementById("userInput").value = text;
-        sendMessage();
-    };
+function togglePanel(){
+let p = document.getElementById("panel");
+p.style.display = p.style.display==="none"?"block":"none";
 }
 
-// 🔊 Falar resposta
-function speak(text) {
-    const speech = new SpeechSynthesisUtterance(text);
-    speech.lang = "pt-BR";
-    window.speechSynthesis.speak(speech);
-}
+const typeInput = document.getElementById("type");
+const sizeInput = document.getElementById("size");
+const thicknessInput = document.getElementById("thickness");
+const gapInput = document.getElementById("gap");
+const colorInput = document.getElementById("color");
+const opacityInput = document.getElementById("opacity");
+
+document.querySelectorAll("input,select").forEach(el=>{
+el.addEventListener("input",draw);
+});
+
+load();
+draw();
 </script>
 
 </body>
-  </html>
+</html>
