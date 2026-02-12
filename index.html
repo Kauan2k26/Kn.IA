@@ -3,165 +3,258 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gerador Scripts</title>
+<title>Lua Script Generator PRO</title>
 
 <style>
 body{
     margin:0;
-    background:#0f0f0f;
-    font-family:Arial;
+    background:#0e0e0e;
+    font-family:Arial, sans-serif;
     color:white;
+    overflow-x:hidden;
 }
 
+/* Texto gigante no fundo */
+.background-text{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%) rotate(-30deg);
+    font-size:150px;
+    font-weight:bold;
+    color:rgba(255,0,0,0.1);
+    z-index:0;
+    pointer-events:none;
+    user-select:none;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+}
+
+/* Container principal */
 .container{
-    max-width:600px;
+    max-width:800px;
     margin:auto;
     padding:20px;
+    position:relative;
+    z-index:1;
 }
 
 h1{
     text-align:center;
     color:#00ffcc;
+    margin-bottom:5px;
 }
 
+/* Texto piscando Criador */
+.creator{
+    text-align:center;
+    font-weight:bold;
+    margin-bottom:20px;
+    animation: blink 1s infinite alternate;
+}
+
+@keyframes blink{
+    0%{
+        color:#00ffcc;
+        text-shadow:0 0 5px #00ffcc,
+                    0 0 10px #00ffcc,
+                    0 0 20px #00ffcc;
+        opacity:1;
+    }
+    100%{
+        color:#006666;
+        text-shadow:none;
+        opacity:0.4;
+    }
+}
+
+/* Cards do gerador */
+.card{
+    background:#1a1a1a;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:15px;
+}
+
+.card h3{
+    margin-top:0;
+    color:#00ffcc;
+}
+
+/* Inputs e textarea */
 input,textarea{
     width:100%;
-    margin:5px 0;
     padding:8px;
     border-radius:8px;
     border:none;
+    margin-top:5px;
+    background:#2a2a2a;
+    color:white;
+}
+
+textarea{
+    min-height:80px;
+    resize:vertical;
+}
+
+/* Botões */
+.buttons{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
 }
 
 button{
-    width:100%;
+    flex:1;
     padding:10px;
-    margin-top:5px;
     border:none;
     border-radius:8px;
     font-weight:bold;
     cursor:pointer;
 }
 
+.add{ background:#3b5bff; }
 .generate{ background:#00ffcc; }
-.add{ background:#4444ff; }
 .copy{ background:#ffaa00; }
 .download{ background:#00aa44; }
 
-textarea{
-    height:250px;
-    background:#1a1a1a;
-    color:#00ffcc;
-}
-
+/* Box de funções */
 .functionBox{
-    background:#1a1a1a;
+    background:#222;
     padding:10px;
-    border-radius:8px;
+    border-radius:10px;
     margin-top:10px;
     position:relative;
 }
 
+/* Botão remover função */
 .removeBtn{
+    position:absolute;
+    top:8px;
+    right:8px;
     background:#ff4444;
-    margin-top:5px;
+    border:none;
+    border-radius:6px;
+    padding:5px 8px;
+    font-size:12px;
+    cursor:pointer;
+}
+
+/* Output */
+#output{
+    height:250px;
+    background:#111;
+    color:#00ffcc;
 }
 </style>
 </head>
 <body>
 
-<div class="container">
-<h1>Lua Script Generator ULTRA</h1>
+<!-- Texto gigante no fundo -->
+<div class="background-text">KAUAN MODS</div>
 
+<div class="container">
+
+<h1>Lua Script Generator PRO</h1>
+<div class="creator">Criador: Kauan Mods</div>
+
+<div class="card">
+<h3>Informações do Script</h3>
 <input type="text" id="scriptName" placeholder="Nome do Script">
 <input type="text" id="author" placeholder="Autor">
+</div>
 
-<h3>Funções:</h3>
+<div class="card">
+<h3>Funções</h3>
 <div id="functions"></div>
-
 <button class="add" onclick="addFunction()">Adicionar Função</button>
-<button class="generate" onclick="generate()">Gerar Script</button>
-<button class="copy" onclick="copyScript()">Copiar</button>
-<button class="download" onclick="downloadScript()">Baixar .lua</button>
+</div>
 
+<div class="card">
+<h3>Ações</h3>
+<div class="buttons">
+<button class="generate" onclick="generate()">Gerar</button>
+<button class="copy" onclick="copyScript()">Copiar</button>
+<button class="download" onclick="downloadScript()">Baixar</button>
+</div>
+</div>
+
+<div class="card">
+<h3>Resultado</h3>
 <textarea id="output" placeholder="Seu script aparecerá aqui..."></textarea>
+</div>
 
 </div>
 
 <script>
-
 function addFunction(){
+    let div = document.createElement("div");
+    div.className = "functionBox";
 
-let div = document.createElement("div");
-div.className = "functionBox";
+    div.innerHTML = `
+    <button class="removeBtn" onclick="removeFunction(this)">X</button>
+    <input type="text" placeholder="Nome da função" class="functionName">
+    <textarea placeholder="Código interno da função"></textarea>
+    `;
 
-div.innerHTML = `
-<input type="text" placeholder="Nome da Função" class="functionName">
-<textarea placeholder="Código interno da função (opcional)"></textarea>
-<button class="removeBtn" onclick="removeFunction(this)">Remover Função</button>
-`;
-
-document.getElementById("functions").appendChild(div);
+    document.getElementById("functions").appendChild(div);
 }
 
-function removeFunction(button){
-button.parentElement.remove();
+function removeFunction(btn){
+    btn.parentElement.remove();
 }
 
 function generate(){
+    let name = document.getElementById("scriptName").value || "Meu Script";
+    let author = document.getElementById("author").value || "Desconhecido";
 
-let name = document.getElementById("scriptName").value || "Meu Script";
-let author = document.getElementById("author").value || "Desconhecido";
-
-let script = `-- ${name}
+    let script = `-- ${name}
 -- Autor: ${author}
 -- Gerado automaticamente
 
 `;
 
-let names = document.querySelectorAll(".functionName");
-let codes = document.querySelectorAll(".functionBox textarea");
+    let names = document.querySelectorAll(".functionName");
+    let codes = document.querySelectorAll(".functionBox textarea");
 
-for(let i=0;i<names.length;i++){
+    for(let i=0;i<names.length;i++){
+        let funcName = names[i].value || "funcao" + (i+1);
+        let internalCode = codes[i].value || `    print("Executando ${funcName}")`;
 
-let funcName = names[i].value || "funcao" + (i+1);
-let internalCode = codes[i].value || `    print("Executando ${funcName}")`;
-
-script += `
+        script += `
 function ${funcName}()
 ${internalCode}
 end
 
 `;
-}
+    }
 
-script += `
--- Executando funções automaticamente
+    script += `
+-- Execução automática
 `;
 
-for(let i=0;i<names.length;i++){
-let funcName = names[i].value || "funcao" + (i+1);
-script += `${funcName}()\n`;
-}
+    for(let i=0;i<names.length;i++){
+        let funcName = names[i].value || "funcao" + (i+1);
+        script += `${funcName}()\n`;
+    }
 
-document.getElementById("output").value = script;
+    document.getElementById("output").value = script;
 }
 
 function copyScript(){
-let text = document.getElementById("output");
-text.select();
-document.execCommand("copy");
-alert("Copiado!");
+    let text = document.getElementById("output");
+    text.select();
+    document.execCommand("copy");
+    alert("Copiado!");
 }
 
 function downloadScript(){
-let text = document.getElementById("output").value;
-let blob = new Blob([text], {type: "text/plain"});
-let a = document.createElement("a");
-a.href = URL.createObjectURL(blob);
-a.download = "script.lua";
-a.click();
+    let text = document.getElementById("output").value;
+    let blob = new Blob([text], {type: "text/plain"});
+    let a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "script.lua";
+    a.click();
 }
-
 </script>
 
 </body>
