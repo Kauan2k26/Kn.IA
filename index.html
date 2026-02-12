@@ -3,226 +3,161 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crosshair PRO</title>
+<title>Lua Script Generator PRO</title>
 
 <style>
 body{
     margin:0;
-    background:transparent;
-    overflow:hidden;
-    font-family:Arial, sans-serif;
-}
-
-#crosshair{
-    position:fixed;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    pointer-events:none;
-}
-
-.panel{
-    position:fixed;
-    bottom:20px;
-    left:50%;
-    transform:translateX(-50%);
-    width:320px;
-    background:#111;
-    border-radius:15px;
-    padding:15px;
+    background:#0f0f0f;
+    font-family:Arial;
     color:white;
-    box-shadow:0 0 20px #00ffcc50;
 }
 
-.panel h2{
-    margin:0 0 10px 0;
+.container{
+    max-width:500px;
+    margin:auto;
+    padding:20px;
+}
+
+h1{
     text-align:center;
     color:#00ffcc;
 }
 
-.row{
-    margin-bottom:8px;
-    font-size:14px;
-}
-
-select,input{
+input,select,textarea{
     width:100%;
-    margin-top:3px;
+    margin:5px 0;
+    padding:8px;
+    border-radius:8px;
+    border:none;
 }
 
 button{
     width:100%;
-    padding:8px;
+    padding:10px;
     margin-top:5px;
     border:none;
     border-radius:8px;
-    background:#00ffcc;
     font-weight:bold;
+    cursor:pointer;
 }
 
-.hideBtn{
-    background:#ff4444;
+.generate{ background:#00ffcc; }
+.copy{ background:#ffaa00; }
+.download{ background:#00aa44; }
+
+textarea{
+    height:200px;
+    background:#1a1a1a;
+    color:#00ffcc;
 }
 </style>
 </head>
 <body>
 
-<canvas id="crosshair" width="300" height="300"></canvas>
+<div class="container">
+<h1>Lua Script Generator PRO</h1>
 
-<div class="panel" id="panel">
-<h2>Crosshair PRO</h2>
+<input type="text" id="scriptName" placeholder="Nome do Script">
+<input type="text" id="author" placeholder="Autor">
 
-<div class="row">
-Tipo:
 <select id="type">
-<option value="cross">Cruz</option>
-<option value="dot">Ponto</option>
-<option value="circle">Círculo</option>
-<option value="x">X</option>
-<option value="t">Tático</option>
+<option value="base">Base Vazia</option>
+<option value="menu">Menu Simples</option>
+<option value="loop">Loop Infinito</option>
+<option value="function">Estrutura com Função</option>
 </select>
-</div>
 
-<div class="row">
-Cor:
-<input type="color" id="color" value="#00ffcc">
-</div>
+<button class="generate" onclick="generate()">Gerar Script</button>
+<button class="copy" onclick="copyScript()">Copiar</button>
+<button class="download" onclick="downloadScript()">Baixar .lua</button>
 
-<div class="row">
-Tamanho:
-<input type="range" id="size" min="10" max="150" value="60">
-</div>
-
-<div class="row">
-Espessura:
-<input type="range" id="thickness" min="1" max="15" value="5">
-</div>
-
-<div class="row">
-Espaçamento:
-<input type="range" id="gap" min="0" max="40" value="10">
-</div>
-
-<div class="row">
-Opacidade:
-<input type="range" id="opacity" min="0.1" max="1" step="0.1" value="1">
-</div>
-
-<button onclick="save()">Salvar Config</button>
-<button onclick="togglePanel()" class="hideBtn">Esconder Painel</button>
+<textarea id="output" placeholder="Seu script aparecerá aqui..."></textarea>
 
 </div>
 
 <script>
-const canvas = document.getElementById("crosshair");
-const ctx = canvas.getContext("2d");
-const center = 150;
+function generate(){
 
-function draw(){
-ctx.clearRect(0,0,300,300);
+let name = document.getElementById("scriptName").value || "Meu Script";
+let author = document.getElementById("author").value || "Desconhecido";
+let type = document.getElementById("type").value;
 
-const type = typeInput.value;
-const size = +sizeInput.value;
-const thickness = +thicknessInput.value;
-const gap = +gapInput.value;
-const color = colorInput.value;
-const opacity = opacityInput.value;
+let script = `-- ${name}
+-- Autor: ${author}
+-- Gerado automaticamente
 
-ctx.globalAlpha = opacity;
-ctx.strokeStyle = color;
-ctx.fillStyle = color;
-ctx.lineWidth = thickness;
+`;
 
-if(type==="cross"){
-drawCross(size,gap);
-}
-if(type==="dot"){
-ctx.beginPath();
-ctx.arc(center,center,thickness*1.5,0,Math.PI*2);
-ctx.fill();
-}
-if(type==="circle"){
-ctx.beginPath();
-ctx.arc(center,center,size/2,0,Math.PI*2);
-ctx.stroke();
-}
-if(type==="x"){
-ctx.beginPath();
-ctx.moveTo(center-size/2,center-size/2);
-ctx.lineTo(center+size/2,center+size/2);
-ctx.moveTo(center+size/2,center-size/2);
-ctx.lineTo(center-size/2,center+size/2);
-ctx.stroke();
-}
-if(type==="t"){
-ctx.beginPath();
-ctx.moveTo(center-gap,center-size/2);
-ctx.lineTo(center-gap,center-gap);
-ctx.moveTo(center+gap,center-size/2);
-ctx.lineTo(center+gap,center-gap);
-ctx.moveTo(center-size/2,center-gap);
-ctx.lineTo(center-gap,center-gap);
-ctx.moveTo(center+gap,center-gap);
-ctx.lineTo(center+size/2,center-gap);
-ctx.stroke();
-}
+if(type === "base"){
+script += `
+print("Script iniciado com sucesso!")
+
+-- Seu código começa aqui
+`;
 }
 
-function drawCross(size,gap){
-ctx.beginPath();
-ctx.moveTo(center-size/2,center);
-ctx.lineTo(center-gap,center);
-ctx.moveTo(center+gap,center);
-ctx.lineTo(center+size/2,center);
-ctx.moveTo(center,center-size/2);
-ctx.lineTo(center,center-gap);
-ctx.moveTo(center,center+gap);
-ctx.lineTo(center,center+size/2);
-ctx.stroke();
+if(type === "menu"){
+script += `
+menu = true
+
+while menu do
+    print("1 - Opção A")
+    print("2 - Opção B")
+    print("0 - Sair")
+
+    local escolha = io.read()
+
+    if escolha == "1" then
+        print("Você escolheu A")
+    elseif escolha == "2" then
+        print("Você escolheu B")
+    elseif escolha == "0" then
+        menu = false
+    else
+        print("Opção inválida")
+    end
+end
+`;
 }
 
-function save(){
-localStorage.setItem("crosshairConfig",JSON.stringify({
-type:typeInput.value,
-size:sizeInput.value,
-thickness:thicknessInput.value,
-gap:gapInput.value,
-color:colorInput.value,
-opacity:opacityInput.value
-}));
-alert("Configuração salva!");
+if(type === "loop"){
+script += `
+while true do
+    print("Loop rodando...")
+    os.execute("sleep 1")
+end
+`;
 }
 
-function load(){
-let config = JSON.parse(localStorage.getItem("crosshairConfig"));
-if(config){
-typeInput.value=config.type;
-sizeInput.value=config.size;
-thicknessInput.value=config.thickness;
-gapInput.value=config.gap;
-colorInput.value=config.color;
-opacityInput.value=config.opacity;
-}
+if(type === "function"){
+script += `
+function minhaFuncao()
+    print("Função executada!")
+end
+
+minhaFuncao()
+`;
 }
 
-function togglePanel(){
-let p = document.getElementById("panel");
-p.style.display = p.style.display==="none"?"block":"none";
+document.getElementById("output").value = script;
 }
 
-const typeInput = document.getElementById("type");
-const sizeInput = document.getElementById("size");
-const thicknessInput = document.getElementById("thickness");
-const gapInput = document.getElementById("gap");
-const colorInput = document.getElementById("color");
-const opacityInput = document.getElementById("opacity");
+function copyScript(){
+let text = document.getElementById("output");
+text.select();
+document.execCommand("copy");
+alert("Copiado!");
+}
 
-document.querySelectorAll("input,select").forEach(el=>{
-el.addEventListener("input",draw);
-});
-
-load();
-draw();
+function downloadScript(){
+let text = document.getElementById("output").value;
+let blob = new Blob([text], {type: "text/plain"});
+let a = document.createElement("a");
+a.href = URL.createObjectURL(blob);
+a.download = "script.lua";
+a.click();
+}
 </script>
 
 </body>
